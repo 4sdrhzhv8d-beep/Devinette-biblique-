@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mots Fléchés - Évangiles (Mobile)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .main-wrapper {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #1e293b;
+        }
+        
+        /* Stats et Progression */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .timer-bar {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 8px;
+            display: none;
+        }
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: #3b82f6;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Définition */
+        .definition-card {
+            background-color: #f0f4ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        .definition-title {
+            font-weight: 700;
+            color: #1e3a8a;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .definition-text {
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* Boîtes de lettres interactives */
+        .letter-inputs-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .letter-box {
+            width: 38px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #1e3a8a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .letter-box.active-box {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            background-color: #f8fafc;
+        }
+
+        /* Clavier Virtuel Intégré */
+        .virtual-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+            background-color: #e2e8f0;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        .key-btn {
+            background-color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #1e293b;
+            padding: 10px 0;
+            flex: 1;
+            max-width: 34px;
+            height: 42px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: background-color 0.1s;
+        }
+        .key-btn:active {
+            background-color: #cbd5e1;
+        }
+        .key-btn.wide {
+            max-width: 60px;
+            font-size: 0.8rem;
+            background-color: #cbd5e1;
+        }
+
+        /* Boutons d'action */
+        .actions-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button.btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+        button.btn-primary:hover {
+            background-color: #1e40af;
+        }
+        button.btn-secondary {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+        button.btn-secondary:hover {
+            background-color: #475569;
+        }
+        button.btn-hint {
+            background-color: #f59e0b;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+        button.btn-hint:hover {
+            background-color: #d97706;
+        }
+
+        #message {
+            margin-top: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 22px;
+            font-size: 0.95rem;
+        }
+
+        .hint-box {
+            background-color: #fef3c7;
+            border: 1px solid #fde68a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #92400e;
+            font-style: italic;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        /* Styles pour l'écran des cadeaux */
+        .gifts-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .gift-box-card {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            border-radius: 12px;
+            padding: 15px;
+            width: 100px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #8b5cf6;
+        }
+        .gift-box-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.5);
+        }
+        .gift-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        .gift-number {
+            background-color: #ffffff;
+            color: #4c1d95;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .reward-reveal-card {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 2px solid #818cf8;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Image lumineuse de la Bible */
+        .bible-card-glow {
+            width: 160px;
+            height: 220px;
+            margin: 15px auto;
+            background: linear-gradient(145deg, #b91c1c, #7f1d1d);
+            border: 3px solid #f59e0b;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+        .bible-cross {
+            font-size: 3rem;
+            color: #fbbf24;
+            text-shadow: 0 0 10px #f59e0b;
+            margin-bottom: 10px;
+        }
+        .bible-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 0 10px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <h1>Mots Fléchés</h1>
+    <div class="subtitle">Spécial Évangiles (Jean & Luc) - Mobile Friendly</div>
+
+    <div class="container">
+        <!-- Écran de configuration -->
+        <div id="setup-screen" class="screen active">
+            <div class="form-group">
+                <label for="difficulty">Choisissez le niveau de difficulté :</label>
+                <select id="difficulty">
+                    <option value="facile" selected>Facile (Sans limite de temps)</option>
+                    <option value="difficile">Difficile (Chrono de 15 secondes par question)</option>
+                </select>
+            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="startGame()">Commencer la partie</button>
+        </div>
+
+        <!-- Écran de jeu -->
+        <div id="game-screen" class="screen">
+            <div class="stats-bar">
+                <span id="question-counter">Question 1 / 10</span>
+                <span id="score-counter">Score : 0</span>
+            </div>
+
+            <div id="timer-display" class="timer-bar">⏱️ Temps restant : <span id="time-left">15</span>s</div>
+
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+
+            <div class="definition-card">
+                <div id="def-title" class="definition-title">Définition 1</div>
+                <p id="def-text" class="definition-text">Chargement...</p>
+            </div>
+
+            <button class="btn-primary btn-hint" onclick="showHint()" id="hint-btn">💡 Obtenir un indice</button>
+            <div id="hint-display" class="hint-box"></div>
+
+            <!-- Cases de lettres cliquables -->
+            <div id="letter-inputs" class="letter-inputs-container"></div>
+
+            <!-- Clavier Virtuel Intégré pour Smartphone -->
+            <div class="virtual-keyboard">
+                <div class="keyboard-row">
+                    <button class="key-btn" onclick="typeLetter('A')">A</button>
+                    <button class="key-btn" onclick="typeLetter('Z')">Z</button>
+                    <button class="key-btn" onclick="typeLetter('E')">E</button>
+                    <button class="key-btn" onclick="typeLetter('R')">R</button>
+                    <button class="key-btn" onclick="typeLetter('T')">T</button>
+                    <button class="key-btn" onclick="typeLetter('Y')">Y</button>
+                    <button class="key-btn" onclick="typeLetter('U')">U</button>
+                    <button class="key-btn" onclick="typeLetter('I')">I</button>
+                    <button class="key-btn" onclick="typeLetter('O')">O</button>
+                    <button class="key-btn" onclick="typeLetter('P')">P</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn" onclick="typeLetter('Q')">Q</button>
+                    <button class="key-btn" onclick="typeLetter('S')">S</button>
+                    <button class="key-btn" onclick="typeLetter('D')">D</button>
+                    <button class="key-btn" onclick="typeLetter('F')">F</button>
+                    <button class="key-btn" onclick="typeLetter('G')">G</button>
+                    <button class="key-btn" onclick="typeLetter('H')">H</button>
+                    <button class="key-btn" onclick="typeLetter('J')">J</button>
+                    <button class="key-btn" onclick="typeLetter('K')">K</button>
+                    <button class="key-btn" onclick="typeLetter('L')">L</button>
+                    <button class="key-btn" onclick="typeLetter('M')">M</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn wide" onclick="deleteLetter()">⌫</button>
+                    <button class="key-btn" onclick="typeLetter('W')">W</button>
+                    <button class="key-btn" onclick="typeLetter('X')">X</button>
+                    <button class="key-btn" onclick="typeLetter('C')">C</button>
+                    <button class="key-btn" onclick="typeLetter('V')">V</button>
+                    <button class="key-btn" onclick="typeLetter('B')">B</button>
+                    <button class="key-btn" onclick="typeLetter('N')">N</button>
+                    <button class="key-btn wide" onclick="submitAnswer()">↵</button>
+                </div>
+            </div>
+
+            <div class="actions-container">
+                <button class="btn-primary" onclick="submitAnswer()">Valider</button>
+                <button class="btn-secondary" onclick="skipQuestion()">Passer</button>
+            </div>
+
+            <div id="message"></div>
+        </div>
+
+        <!-- Écran de fin & Choix des Cadeaux -->
+        <div id="end-screen" class="screen center-text">
+            <h2>Partie Terminée ! 🎉</h2>
+            <p id="final-score" style="font-size: 1.1rem; margin: 10px 0; color: #334155; font-weight: bold;"></p>
+            
+            <div id="gift-selection-area">
+                <p style="color: #4c1d95; font-weight: 700; margin-top: 20px;">🎁 Choisis ton cadeau bonus :</p>
+                <div class="gifts-container">
+                    <div class="gift-box-card" onclick="openGift()">
+                        <div class="gift-icon">🎁</div>
+                        <div class="gift-number">1</div>
+                    </div>
+                    <div class="gift-box-card" onclick="openGift()">
+                        <div class="gift-icon">🎁</div>
+                        <div class="gift-number">2</div>
+                    </div>
+                    <div class="gift-box-card" onclick="openGift()">
+                        <div class="gift-icon">🎁</div>
+                        <div class="gift-number">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reward-display" style="display: none;" class="reward-reveal-card">
+                <h3 style="color: #fbbf24; margin-top: 0; font-size: 1.3rem;">✨ CADEAU RÉVÉLÉ ✨</h3>
+                
+                <p id="reward-intro-text" style="color: #e0e7ff; font-size: 1rem; line-height: 1.5; margin-bottom: 10px;"></p>
+
+                <!-- Image lumineuse de la Bible de Jérusalem -->
+                <div class="bible-card-glow">
+                    <div class="bible-cross">✝</div>
+                    <div class="bible-title">BIBLE DE JÉRUSALEM</div>
+                </div>
+
+                <button class="btn-primary" style="margin-top: 15px;" onclick="resetGame()">Rejouer une partie</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const encodedBiblicalData = [
+        { w: "ebrevel", def: "Jn 1, 1-5 : « Au commencement était le... » (ou la Parole divine)." },
+        { w: "niomet", def: "Jn 1, 6-8 : Présentation de Jean-Baptiste, envoyé comme... pour la Lumière." },
+        { w: "ueidedstnafne", def: "Jn 1, 9-13 : Le pouvoir donné à ceux qui croient d'être faits..." },
+        { w: "noitanracni", def: "Jn 1, 14-18 : « Et le Verbe s'est fait chair, il a habité parmi nous... »" },
+        { w: "tacifingamel", def: "Le cantique de Marie (Lc 1, 46-55)." },
+        { w: "meelhteb", def: "Le lieu de la naissance de Jésus (Lc 2, 4)." },
+        { w: "noemys", def: "Le vieillard qui reconnaît le Messie au Temple (Lc 2, 25-35)." },
+        { w: "niatiramasnobel", def: "La parabole du voyageur attaqué et secouru par un méprisé (Lc 10, 30-37)." },
+        { w: "eiramtetehtram", def: "Les deux sœurs qui accueillent Jésus : l'une écoute, l'autre s'active (Lc 10, 38-42)." },
+        { w: "eugidorptnafne", def: "La parabole du père accueillant son garçon repentant (Lc 15, 11-32)." },
+        { w: "eehcaz", def: "Le petit chef de publicains monté sur un sycomore (Lc 19, 1-10)." },
+        { w: "suammedselpicsid", def: "Les deux disciples qui rencontrent Jésus ressuscité sur la route (Lc 24, 13-35)." },
+        { w: "sregrebsel", def: "Les premiers avertis par les anges de la naissance du Sauveur dans la nuit (Lc 2, 1-20)." },
+        { w: "norralbonel", def: "Le supplicié à côté de Jésus sur la croix qui demande à entrer dans son Royaume (Lc 23, 39-43)." },
+        { w: "noitatisival", def: "Lc 1, 39-56 : « La visite de Marie enceinte à sa cousine Élisabeth qui tressaille d'allégresse »" },
+        { w: "emetpabel", def: "Lc 3, 21-22 : « L'événement au fleuve Jourdain où l'Esprit Saint descend sous une forme corporelle »" },
+        { w: "esuelucarimehcepal", def: "Lc 5, 1-11 : « L'événement miraculeux sur le lac où Simon Pierre tombe aux genoux de Jésus »" },
+        { w: "nianedeneujel", def: "Lc 7, 11-17 : « La résurrection du fils unique d'une mère éplorée par Jésus »" },
+        { w: "niacilbupelteneisirahpel", def: "Lc 18, 9-14 : « La parabole montrant l'un qui se vante et l'autre qui se reconnaît pécheur »" },
+        { w: "enecal", def: "Lc 22, 14-20 : « Le dernier repas où Jésus institue le partage du pain et de la coupe »" },
+        { w: "noisnecsal", def: "Lc 24, 50-53 : « L'élévation finale de Jésus au ciel sous le regard de ses apôtres »" }
+    ];
+
+    function decodeWord(encodedStr) {
+        return encodedStr.split('').reverse().join('');
+    }
+
+    const biblicalData = encodedBiblicalData.map(item => ({
+        word: decodeWord(item.w).toUpperCase(),
+        def: item.def
+    }));
+
+    let currentDifficulty = "facile";
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let currentItem = null;
+    let hintUsed = false;
+    let activeBoxIndex = 0;
+    let timerInterval = null;
+    let timeLeft = 15;
+
+    function startGame() {
+        currentDifficulty = document.getElementById("difficulty").value;
+        
+        currentQuestions = [...biblicalData].sort(() => 0.5 - Math.random()).slice(0, 10);
+
+        while (currentQuestions.length < 10 && biblicalData.length > 0) {
+            const randomItem = biblicalData[Math.floor(Math.random() * biblicalData.length)];
+            currentQuestions.push(randomItem);
+        }
+
+        currentIndex = 0;
+        score = 0;
+
+        document.getElementById("setup-screen").classList.remove("active");
+        document.getElementById("game-screen").classList.add("active");
+
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= 10) {
+            endGame();
+            return;
+        }
+
+        clearInterval(timerInterval);
+
+        hintUsed = false;
+        activeBoxIndex = 0;
+        document.getElementById("hint-display").style.display = "none";
+        document.getElementById("hint-display").innerText = "";
+        document.getElementById("hint-btn").disabled = false;
+        document.getElementById("message").innerText = "";
+
+        currentItem = currentQuestions[currentIndex];
+        
+        document.getElementById("question-counter").innerText = `Question ${currentIndex + 1} / 10`;
+        document.getElementById("score-counter").innerText = `Score : ${score}`;
+        document.getElementById("def-title").innerText = `Définition ${currentIndex + 1}`;
+        document.getElementById("def-text").innerText = currentItem.def;
+
+        const progressPercent = (currentIndex / 10) * 100;
+        document.getElementById("progress-bar").style.width = progressPercent + "%";
+
+        renderLetterBoxes();
+
+        if (currentDifficulty === "difficile") {
+            document.getElementById("timer-display").style.display = "block";
+            timeLeft = 15;
+            document.getElementById("time-left").innerText = timeLeft;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time-left").innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    const msg = document.getElementById("message");
+                    msg.style.color = "#dc2626";
+                    msg.innerText = `Temps écoulé ! La réponse était : ${currentItem.word}`;
+                    currentIndex++;
+                    setTimeout(loadQuestion, 1800);
+                }
+            }, 1000);
+        } else {
+            document.getElementById("timer-display").style.display = "none";
+        }
+    }
+
+    function renderLetterBoxes() {
+        const container = document.getElementById("letter-inputs");
+        container.innerHTML = "";
+
+        const wordLength = currentItem.word.length;
+        for (let i = 0; i < wordLength; i++) {
+            const box = document.createElement("div");
+            box.className = "letter-box" + (i === activeBoxIndex ? " active-box" : "");
+            box.dataset.index = i;
+            box.innerText = "";
+            
+            box.addEventListener("click", () => {
+                activeBoxIndex = i;
+                updateActiveBoxStyles();
+            });
+
+            container.appendChild(box);
+        }
+    }
+
+    function updateActiveBoxStyles() {
+        const boxes = document.querySelectorAll(".letter-box");
+        boxes.forEach((box, idx) => {
+            if (idx === activeBoxIndex) {
+                box.classList.add("active-box");
+            } else {
+                box.classList.remove("active-box");
+            }
+        });
+    }
+
+    function typeLetter(letter) {
+        const boxes = document.querySelectorAll(".letter-box");
+        if (activeBoxIndex < boxes.length) {
+            boxes[activeBoxIndex].innerText = letter.toUpperCase();
+            if (activeBoxIndex < boxes.length - 1) {
+                activeBoxIndex++;
+                updateActiveBoxStyles();
+            }
+        }
+    }
+
+    function deleteLetter() {
+        const boxes = document.querySelectorAll(".letter-box");
+        if (boxes[activeBoxIndex].innerText !== "") {
+            boxes[activeBoxIndex].innerText = "";
+        } else if (activeBoxIndex > 0) {
+            activeBoxIndex--;
+            boxes[activeBoxIndex].innerText = "";
+            updateActiveBoxStyles();
+        }
+    }
+
+    function showHint() {
+        if (hintUsed) return;
+        hintUsed = true;
+        document.getElementById("hint-btn").disabled = true;
+
+        const word = currentItem.word;
+        const hintText = `Indice : Le mot comporte ${word.length} lettres. Il commence par '${word[0]}' et se termine par '${word[word.length - 1]}'.`;
+        
+        const hintBox = document.getElementById("hint-display");
+        hintBox.innerText = hintText;
+        hintBox.style.display = "block";
+    }
+
+    function submitAnswer() {
+        const boxes = document.querySelectorAll(".letter-box");
+        let userWord = "";
+        boxes.forEach(box => {
+            userWord += box.innerText.trim().toUpperCase();
+        });
+
+        const msg = document.getElementById("message");
+
+        if (userWord.length < currentItem.word.length) {
+            msg.style.color = "#d97706";
+            msg.innerText = "Veuillez remplir toutes les cases.";
+            return;
+        }
+
+        if (userWord === currentItem.word) {
+            clearInterval(timerInterval);
+            msg.style.color = "#16a34a";
+            msg.innerText = "Correct ! 🎉 Excellente réponse.";
+            score++;
+            currentIndex++;
+            setTimeout(loadQuestion, 1200);
+        } else {
+            msg.style.color = "#dc2626";
+            msg.innerText = "Incorrect. Essayez encore !";
+        }
+    }
+
+    function skipQuestion() {
+        clearInterval(timerInterval);
+        const msg = document.getElementById("message");
+        msg.style.color = "#475569";
+        msg.innerText = `La réponse était : ${currentItem.word}`;
+        currentIndex++;
+        setTimeout(loadQuestion, 1800);
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        document.getElementById("game-screen").classList.remove("active");
+        document.getElementById("end-screen").classList.add("active");
+        document.getElementById("final-score").innerText = `Votre score final est de ${score} / 10`;
+        document.getElementById("progress-bar").style.width = "100%";
+        
+        document.getElementById("gift-selection-area").style.display = "block";
+        document.getElementById("reward-display").style.display = "none";
+    }
+
+    /* Choix aléatoire du cadeau */
+    function openGift() {
+        const randomOptions = [
+            "Félicitations ! Vous avez tiré au sort l'emplacement spécial où se trouve la :",
+            "Superbe intuition ! Votre coffre surprise contient la :",
+            "Merveilleux ! Vous avez découvert l'emplacement sacré de la :"
+        ];
+        
+        // Sélectionne une phrase aléatoire dans le tableau
+        const chosenMessage = randomOptions[Math.floor(Math.random() * randomOptions.length)];
+
+        document.getElementById("reward-intro-text").innerText = chosenMessage;
+        document.getElementById("gift-selection-area").style.display = "none";
+        document.getElementById("reward-display").style.display = "block";
+    }
+
+    function resetGame() {
+        document.getElementById("end-screen").classList.remove("active");
+        document.getElementById("setup-screen").classList.add("active");
+    }
+
+    // Gestion du clavier physique
+    document.addEventListener("keydown", (e) => {
+        if (!document.getElementById("game-screen").classList.contains("active")) return;
+        
+        if (e.key === "Backspace") {
+            deleteLetter();
+        } else if (e.key === "Enter") {
+            submitAnswer();
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+            typeLetter(e.key);
+        }
+    });
+</script>
+
+</body>
+</html>
